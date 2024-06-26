@@ -10,6 +10,15 @@ def get_target_team():
         else:
             print("Invalid team format. Please enter a team in the format 'frcXXXX'.")
 
+# Function to ask the user if they want to filter out off-season events
+def filter_offseason_events():
+    while True:
+        filter_choice = input("Do you want to filter out off-season events? (yes/no): ").strip().lower()
+        if filter_choice in ["yes", "no"]:
+            return filter_choice == "yes"
+        else:
+            print("Invalid choice. Please enter 'yes' or 'no'.")
+
 # API base URL and X-TBA-Auth-Key
 base_url = "https://www.thebluealliance.com/api/v3"
 auth_key = "oqH7AumVAswLeTPLMDM1AA3r6duzzx7pBqOTNwMyt2qWQyXdPa4dJL7MayEXCbhF"  # Your actual TBA Auth Key
@@ -22,6 +31,10 @@ headers = {
 
 # Get target team from user
 target_team = get_target_team()
+
+# Ask user if they want to filter out off-season events
+filter_offseason = filter_offseason_events()
+
 team_years_participated = []
 
 # List to store all match data
@@ -53,8 +66,11 @@ for year in team_years_participated:
         # Check if the request was successful
         if team_events_response.status_code == 200:
             team_events_data = team_events_response.json()
-            # Filter out off-season events (event_type = 99) and sort by start_date
-            regular_events = [event for event in team_events_data if event['event_type'] != 99]
+            # Filter events based on user choice
+            if filter_offseason:
+                regular_events = [event for event in team_events_data if event['event_type'] != 99]
+            else:
+                regular_events = team_events_data
             regular_events.sort(key=lambda x: x['start_date'])
         else:
             print(f"Failed to retrieve event data for {year}. Status code: {team_events_response.status_code}")
@@ -202,8 +218,8 @@ df_matches = pd.DataFrame(processed_matches)
 df_stats = pd.DataFrame.from_dict(team_stats, orient="index").reset_index().rename(columns={"index": "team_key"})
 
 # Create a Pandas Excel writer using XlsxWriter as the engine
-with pd.ExcelWriter(f"new_tba_{target_team}_matches.xlsx", engine='xlsxwriter') as writer:
+with pd.ExcelWriter(f"tba_{target_team}_match_data.xlsx", engine='xlsxwriter') as writer:
     df_matches.to_excel(writer, sheet_name='Matches', index=False)
     df_stats.to_excel(writer, sheet_name='Team Stats', index=False)
     
-print(f"Data successfully saved to new_tba_{target_team}_matches.xlsx")
+print(f"Data successfully saved to tba_{target_team}_match_data.xlsx")
