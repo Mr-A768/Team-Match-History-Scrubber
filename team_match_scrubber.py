@@ -21,7 +21,7 @@ def filter_offseason_events():
 
 # API base URL and X-TBA-Auth-Key
 base_url = "https://www.thebluealliance.com/api/v3"
-auth_key = "oqH7AumVAswLeTPLMDM1AA3r6duzzx7pBqOTNwMyt2qWQyXdPa4dJL7MayEXCbhF"  # Your actual TBA Auth Key
+auth_key = "it's a secret to everybody"  # Your actual TBA Auth Key
 
 # Headers with X-TBA-Auth-Key
 headers = {
